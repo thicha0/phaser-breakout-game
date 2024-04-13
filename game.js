@@ -38,10 +38,16 @@ class mainScene {
         this.paddle.body.immovable = true;
 
         this.initBricks();
+
+        this.scoreText = this.add.text(5, 5, "Points: 0", {
+            font: "18px Arial",
+            fill: "#0095DD",
+        });
+        this.score = 0
     }
     update() {
         this.physics.collide(this.ball, this.paddle);
-        this.physics.collide(this.ball, this.bricks, this.ballHitBrick);
+        this.physics.collide(this.ball, this.bricks, this.ballHitBrick.bind(this));
         this.paddle.x = this.input.x || this.sys.game.config.width * 0.5;
     }
 
@@ -79,6 +85,9 @@ class mainScene {
 
     ballHitBrick(ball, brick) {
         brick.destroy()
+        this.score += 10
+        this.scoreText.setText(`Points: ${this.score}`)
+        return this
     }
 }
 
