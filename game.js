@@ -6,6 +6,19 @@ class mainScene {
         this.load.image("brick", "img/brick.png");
     }
     create() {
+        this.lives = 3
+        this.livesText = this.add.text(this.sys.game.config.width - 5, 5, `Lives: ${this.lives}`, {
+            font: "18px Arial",
+            fill: "#0095DD",
+        })
+        this.livesText.setOrigin(1, 0)
+        this.lifeLostText = this.add.text(this.sys.game.config.width * 0.5, this.sys.game.config.height * 0.5, "You lost a life, click to continue", {
+            font: "18px Arial",
+            fill: "#0095DD",
+        })
+        this.lifeLostText.setOrigin(0.5)
+        this.lifeLostText.setVisible(false)
+
         this.ball = this.physics.add.sprite(
             this.sys.game.config.width * 0.5,
             this.sys.game.config.height - 25,
@@ -21,12 +34,7 @@ class mainScene {
         this.ball.body.bounce.set(1)
 
         this.ball.body.onWorldBounds = true;
-        this.physics.world.on('worldbounds', (_, __, down) => {
-            if (down) {
-                alert('You lose !')
-                location.reload()
-            }
-        })
+        this.physics.world.on('worldbounds', this.ballLeaveScreen.bind(this))
         
         this.paddle = this.physics.add.sprite(
             this.sys.game.config.width * 0.5,
@@ -91,6 +99,26 @@ class mainScene {
         if (this.bricks.children.entries.length === 0) {
             alert("You won the game, congratulations!");
             location.reload();
+        }
+    }
+
+    ballLeaveScreen(_, __, down) {
+        if (down) {
+            this.lives--
+            if (this.lives > 0) {
+                this.livesText.setText(`Lives: ${this.lives}`)
+                this.lifeLostText.visible = true;
+                this.ball.body.velocity.set(0, 0)
+                this.ball.setPosition(this.sys.game.config.width * 0.5, this.sys.game.config.height - 25)
+                this.paddle.setPosition(this.sys.game.config.width * 0.5, this.sys.game.config.height - 5)
+                this.input.once('pointerdown', () => {
+                    this.lifeLostText.visible = false;
+                    this.ball.body.velocity.set(200, 200);
+                }, this);
+            } else {
+                alert("You lost all your lives, better luck next time!")
+                location.reload()
+            }
         }
     }
 }
