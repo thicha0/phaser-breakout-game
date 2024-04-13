@@ -4,6 +4,10 @@ class mainScene {
         this.load.image("ball", "img/ball.png");
         this.load.image('paddle', 'img/paddle.png');
         this.load.image("brick", "img/brick.png");
+        this.load.spritesheet("wobble", "img/wobble.png", {
+            frameWidth: 20,
+            frameHeight: 20
+        });
     }
     create() {
         this.lives = 3
@@ -25,6 +29,12 @@ class mainScene {
             "ball"
         );
         this.ball.setOrigin(0.5);
+        this.anims.create({
+            key: "wobble",
+            frames: this.anims.generateFrameNumbers("wobble", { frames: [0, 1, 0, 2, 0] }),
+            frameRate: 15,
+            repeat: 1
+        })
 
         this.physics.world.enable(this.ball);
         
@@ -54,7 +64,7 @@ class mainScene {
         this.score = 0
     }
     update() {
-        this.physics.collide(this.ball, this.paddle);
+        this.physics.collide(this.ball, this.paddle, this.ballHitPaddle.bind(this));
         this.physics.collide(this.ball, this.bricks, this.ballHitBrick.bind(this));
         this.paddle.x = this.input.x || this.sys.game.config.width * 0.5;
     }
@@ -92,7 +102,18 @@ class mainScene {
     }
 
     ballHitBrick(ball, brick) {
-        brick.destroy()
+        ball.play('wobble')
+        // brick.destroy()
+        const tween = this.tweens.add({
+            targets: brick,
+            duration: 200,
+            scaleX: 0,
+            scaleY: 0,
+            onComplete: () => {
+                brick.destroy();
+            }
+        })
+
         this.score += 10
         this.scoreText.setText(`Points: ${this.score}`)
         
@@ -100,6 +121,10 @@ class mainScene {
             alert("You won the game, congratulations!");
             location.reload();
         }
+    }
+
+    ballHitPaddle(ball, paddle) {
+        ball.play('wobble')
     }
 
     ballLeaveScreen(_, __, down) {
