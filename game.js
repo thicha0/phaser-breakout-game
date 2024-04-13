@@ -3,6 +3,7 @@ class mainScene {
     preload() {
         this.load.image("ball", "img/ball.png");
         this.load.image('paddle', 'img/paddle.png');
+        this.load.image("brick", "img/brick.png");
     }
     create() {
         this.ball = this.physics.add.sprite(
@@ -35,10 +36,44 @@ class mainScene {
         this.paddle.setOrigin(0.5, 1);
         this.physics.world.enable(this.paddle);
         this.paddle.body.immovable = true;
+
+        this.initBricks();
     }
     update() {
         this.physics.collide(this.ball, this.paddle);
         this.paddle.x = this.input.x || this.sys.game.config.width * 0.5;
+    }
+
+    initBricks() {
+        let brickInfo = {
+            width: 50,
+            height: 20,
+            count: {
+              row: 3,
+              col: 7,
+            },
+            offset: {
+              top: 50,
+              left: 60,
+            },
+            padding: 10,
+        }
+        this.bricks = this.physics.add.group();
+        let newBrick
+
+        for (let i = 0; i < brickInfo.count.col; i++) {
+            for (let j = 0; j < brickInfo.count.row; j++) {
+                const brickX =
+                    i * (brickInfo.width + brickInfo.padding) + brickInfo.offset.left;
+                const brickY =
+                    j * (brickInfo.height + brickInfo.padding) + brickInfo.offset.top;
+                newBrick = this.physics.add.sprite(brickX, brickY, "brick");
+                this.physics.world.enable(newBrick, Phaser.Physics.ARCADE);
+                newBrick.body.immovable = true;
+                newBrick.setOrigin(0.5);
+                this.bricks.add(newBrick);
+            }
+        }
     }
 }
 
