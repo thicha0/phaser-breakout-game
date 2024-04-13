@@ -87,7 +87,11 @@ class mainScene {
         brick.destroy()
         this.score += 10
         this.scoreText.setText(`Points: ${this.score}`)
-        return this
+        
+        if (this.bricks.children.entries.length === 0) {
+            alert("You won the game, congratulations!");
+            location.reload();
+        }
     }
 }
 
